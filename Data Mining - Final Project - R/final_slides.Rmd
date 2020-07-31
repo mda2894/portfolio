@@ -1,0 +1,145 @@
+---
+title: "Early Screening for Diabetic Retinopathy with Retinal Imaging Data"
+author: "Michael Anderson"
+institute: "University of Kentucky"
+date: "12/5/2019"
+output: 
+beamer_presentation:
+theme: "Darmstadt"
+toc: true
+bibliography: bib.bib
+csl: journal-of-the-american-statistical-association.csl
+header-includes: 
+- \AtBeginSubsection{}
+---
+
+# Introduction
+
+## Diabetic Retinopathy
+- Diabetic retinopathy (DR) is essentially damage to the retina caused by diabetes
+- Diabetes causes poor blood circulation and damage to blood vessels that can lead to permanent damage to the retina and other parts of the eye, resulting in vision loss and, if untreated, blindness
+- Can display in many different ways, but often in the form of one or more of the following: 
+  - microaneurysms - swelling in small blood vessels due to weak vessel walls
+  - exudates - mass of cells and fluid that have seeped out of a blood vessel
+  - neovascularization - new, weak blood vessels created due to poor blood flow
+  - edema or hemorrhaging - build up of fluid or internal bleeding
+
+## Examples
+![Normal Eye Fundus](ex1.jpg){width=85% height=85%}
+
+## Examples
+![DR with Microaneurysms and Exudates](ex2.jpg){width=85% height=85%}
+
+## Examples
+![Severe DR with Hemorrhaging](ex3.jpg){width=85% height=85%}
+
+## Data Source
+- Data came from @antal_ensemble-based_2014, which used several machine learning algorithms and ensemble techniques to produce a screening system for DR from eye images
+- The authors used the publicly available Messidor image dataset [@decenciere_feedback_2014] as an example of the applicability of their method
+- Messidor set contains 1200 eye fundus images, with 4 levels of DR, by physician diagnosis:
+  - R0 = No DR
+  - R1 = Mild, Non-Proliferative DR
+  - R2 = Severe, Non-Proliferative DR
+  - R3 = Proliferative DR
+- Antal dataset has data on 1151 patients, with various features extracted from the underlying Messidor images
+
+## Variables
+- Outcome:
+  - *DR*: Diabetic Retinopathy status (binary)
+- Predictors:
+  - *AMFM*: Prediction of DR status from AM/FM based feature extraction (binary)
+  - *PRE*: Pre-screening indicator of severe retinal abnormality (binary)
+  - *DMD*: Estimated distance between centers of macula and optic disk
+  - *ODD*: Estimated diameter of the optic disk
+  - *MA1* - *MA6*: Estimated counts of microaneurysms, at increasing confidence levels (higher numbers are more conservative)
+  - *EX1* - *EX8*: Estimated counts of exudates, at increasing confidence levels (higher numbers are more conservative)
+- Sidenote: these are all my own chosen names for the variables, since the variables didn't have any labels to begin with
+
+## Data Pre-Processing
+- There were no missing values in the dataset, but there were four observations that were denoted as having "poor image quality"
+- For simplicity, those four observations were dropped from the analysis, leaving 1147 observations total
+- All of the *MA* and *EX* variables were log-transformed, due to their being count variables and having a fairly heavy right skew
+- The overall percentage of patients with DR in the dataset was about 53%, so 0.5 was used as the split point for classification of all predictions
+- Finally, the data was split into train/validation/test sets, using a 60/20/20 split, maintaining a roughly equal distribution of the outcome in all three sets
+
+# Model Training
+
+## General Training Framework
+- All models were trained on the 60% training dataset only
+- The `caret` package [@kuhn_building_2008] was used to implement 5-fold cross-validation (CV) within the training set for the selection of any tuning parameters
+- Prediction accuracy of final model was evaluated using the 20% test dataset
+- The 20% validation dataset was set aside for the exploration of model ensembling techniques later in the project
+
+## Penalized Logistic Regression
+- Penalized logistic regression (PLR) was performed on all predictors, using the `glmnet` package's implementation of elastic net regularization [@friedman_regularization_2010]
+- Elastic net regression utilizes a penalty parameter of $\lambda$, and a parameter of $\alpha$ to measure the amount of mixing between lasso and ridge regression
+- CV produced an optimal $\alpha$ of 1, which represents pure lasso regression
+- After fixing $\alpha = 1$, the optimal $\lambda$ was calculated using `glmnet`'s built-in CV implementation, which produced a value of $\lambda \approx 0.0004$
+- Utilizing this final tuning parameter combination, the final PLR model was fit to the full training dataset, in which none of the $\beta$ coefficients were reduced to 0
+
+## Generalized Additive Model
+- A generalized additive model (GAM) was trained on all predictors using the `mgcv` package [@wood_fast_2011]
+- The effect of each continuous and count predictor was estimated using an individually spline-smoothed fit, and the binary predictors were included linearly
+- Originally, all *EX* and *MA* variables were to be smoothed together into their own multivariate groups, but the estimated degrees of freedom required to do so were very high (nearly the size of the training set), which indicated overfitting would have likely been an issue for that model
+- Since GAMs do not have any explicit tuning parameters, once the functional form of the model described above was finalized, the GAM model was trained on the entire training set. 
+
+## Extremely Randomized Trees
+- Extremely randomized tree (ERT) models [@simm_tree-based_2014] are similar to random forest models, except:
+  1. ERTs do not use the bagging technique of random forests, instead fitting every tree to the full training set
+  1. The splits in a given tree are chosen from a small number of random splits among all selected predictors for that tree, leading to more variable tree performance
+- CV was used to tune the number of trees, number of candidate variables selected per tree, and number of random splits selected per tree
+- Notably, tree size was not tuned here, which could improve performance
+- Once the tuning parameter values were selected, an ERT model was fit to the full training set 
+
+# Model Ensembling & Performance
+
+## Model Averaging
+- The first model ensembling technique was just a simple average of the test predictions of the three models described previously
+- Essentially, if two or more of the three models "voted" one way, then that was the vote that represented the entire group
+- A slightly more sophisticated ensembling technique was also utilized, which was a weighted average of the three models' predictions.
+- The weight used for each model's prediction was its validation set accuracy, so that more accurate models would get more of a say in the final vote, while less accurate models would be downweighted
+- However, the three models didn't really perform dramatically differently, so the three weights ended up being pretty similar
+
+## Model Stacking
+- The final model ensembling technique used was a simple model stacking algorithm
+- Model stacking usually involves training a "meta-model" to decide the joint prediction of a group of individual models
+- In this case, logistic regression was used to combine the predictions of the three training models
+- A logistic regression model was trained, using the validation data, to predict the true validation outcome from the three sets of predicted probabilities produced by our three training models
+- This logistic regression model would then be utilized to combine the three individual model predictions for each test set case by predicting the test set outcomes from the test set predictions of the training models
+
+## Model Performance
+
+|      | *ACCU*  | *SENS*  | *SPEC*  |
+|------|---------|---------|---------|
+|*PLR* | 0.773   | 0.779   | 0.766   |
+|*GAM* |**0.782**| 0.779   |**0.785**|
+|*ERT* | 0.716   | 0.730   | 0.701   |
+|*sAVE*| 0.773   |**0.795**| 0.748   |
+|*wAVE*| 0.773   |**0.795**| 0.748   |
+|*GLM* | 0.777   | 0.779   | 0.776   |
+
+# Conclusion
+
+## Pros and Cons
+- Overall, I'm okay with the performance of these models
+- Didn't do as well as the original paper, which had 90% prediction accuracy, but also used more sophisticated ensemble methods and combined 8 different individual modeling techniques
+- Could certainly use more advanced techniques
+- Also could use some more time on proper model/tuning parameter selection
+- Regardless of how my techniques performed, I gained a lot of knowledge about the practical implementation of tuning and fitting various models, and knowing is half the battle!
+
+## Public Health Impact
+
+![](AIbad.jpg){height=90%}
+
+## Acknowledgements
+
+I want to thank Kennie Anderson, COA, OSC (my wife) for inspiring me to pursue this topic and for providing her subject area expertise along the way...
+
+and for, like, being my wife or whatever
+
+## References {.allowframebreaks}
+
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent
