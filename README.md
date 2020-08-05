@@ -1,6 +1,6 @@
 # portfolio
 
-A small portfolio, demonstrating some of my experience with various data analysis methods and programming languages. Also includes some of my projects/papers/presentations from grad school, to give a taste of my scientific writing. All code and writing is entirely my own, except where noted otherwise.
+A small portfolio, demonstrating some of my experience with various data analysis methods and programming languages. Also includes some of my projects/papers/presentations from grad school, to give a taste of my scientific writing. All code and writing is entirely my own, unless noted otherwise.
 
 ## Contents
 
