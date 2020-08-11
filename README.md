@@ -14,7 +14,7 @@ A small portfolio, demonstrating some of my experience with various data analysi
   * My problem set code for week 7 of the free, online Harvard computer science course, cs50
   * This week focused on SQL, and how to use SQL in Python
   * movies.sql is a series of queries made on an SQL database consisting of IMDB movie data, including movie ratings, actors, and directors
-  * The two python files are for reading data on Hogwarts students from a CSV into an SQL database, using python (in import.py) and then printing out a roster of formatted student information from that database, based on a given Hogwarts house (in roster.py)
+  * The two python files are for reading data on Hogwarts students from a CSV into an SQL database (in import.py) and then printing out a roster of formatted student information from that database, based on a given Hogwarts house (in roster.py)
 
 * Data Mining - Final Project - R
   * Contains code, paper, and presentation slides for my final project in CPH 636: Data Mining in Public Health
