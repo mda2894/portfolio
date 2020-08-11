@@ -18,6 +18,9 @@ A small portfolio, demonstrating some of my experience with various data analysi
 * R - Data Mining - Final Project
   * Contains code, paper, and presentation slides for my final project in CPH 636: Data Mining in Public Health
   * The goal of the project was to take a publicly available dataset (preferably related to public health) and apply a few different statistical learning methods we learned in the course
+  * The dataset I chose utilized features extracted from retinal images to predict whether an ophthalmic patient had diabetic retinopathy or not
+  * The data mining techniques I used were penalized logistic regression, generalized additive models, and extremely randomized trees (similar to a random forest)
+  * I also used a few different model ensembling techniques to try to get better prediction than any one method alone
 
 * R - Dissertation Work
   * Contains my literature review and code for the first part of my dissertation research into a nonparametric regression technique developed by my advisor (original publication [here](https://doi.org/10.1002/cjs.10104))
