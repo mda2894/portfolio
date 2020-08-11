@@ -6,9 +6,9 @@ A small portfolio, demonstrating some of my experience with various data analysi
 
 * CS50 - Pset4 - C
   * My problem set code for week 4 of the free, online Harvard computer science course, cs50
-  * This week focused on memory management in C, and the problem set focused on handling image data
-  * The file helpers.c contains a series of "filters" for images, from grayscale, sepia, blur, and a simple edge-detection algorithm
-  * recover.c is a file that will read a given binary memory stream and recover any jpeg images that are found in the stream
+  * This week dealt with managing memory in C, and the problem set focused on handling image data
+  * helpers.c contains a series of "filters" for images, from grayscale, sepia, blur, and a simple edge-detection algorithm
+  * recover.c reads a given binary memory stream and recovers any jpeg images that are found in the stream
 
 * CS50 - Pset7 - SQL
   * My problem set code for week 7 of the free, online Harvard computer science course, cs50
