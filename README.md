@@ -31,6 +31,7 @@ A small portfolio, demonstrating some of my experience with various data analysi
   * A weekend project of mine, inspired by [this reddit post](https://www.reddit.com/r/dataisbeautiful/comments/f773m1/oc_visualization_of_the_colour_palette_or_barcode/)
   * The original post created "movie barcodes" from the highest grossing movies of all time, using Python
   * I wanted to see if I could implement the same thing in R. It turned out to be more complicated than I originally imagined, and had to use [ffmpeg](https://ffmpeg.org/) to get a directory of frames from the film first, then process the frames one by one in R
+  * The Barcodes subdirectory contains the actual movie barcodes I created, including two different types of barcode (one using uniform vertical lines of color, and another using heterogeneous vertical lines of color) for all 8 Harry Potter movies as well as a recent favorite of mine, Knives Out
 
 * SAS - Survival Analysis - Final Project
   * My final paper for STA 635, the survival analysis course I took during my Master's coursework
