@@ -11,7 +11,7 @@ pacman::p_load(imager, gridExtra, png, grid)
 # calculate a barcode for all images in a directory
 create_barcode <- function(dir = getwd(), width = 1920, height = 1080, hetero = 8) {
   
-  # calculate barcode from a single image file
+  # calculate bar from a single image file
   create_bar <- function(file) {
     image <- imager::load.image(file)
     
@@ -19,16 +19,18 @@ create_barcode <- function(dir = getwd(), width = 1920, height = 1080, hetero = 
   }
   
   barcode_list <- lapply(list.files(dir, pattern = "*.jpg"), 
-         function(file) create_bar(file.path(dir, file)))
+                         function(file) create_bar(file.path(dir, file)))
   
   barcode <- imager::imappend(barcode_list, "x")
-
+  
   return(imager::resize(barcode, size_x = width, size_y = height, interpolation_type = 3))
 }
 
 
-# run in terminal to create frames:
-# ffmpeg -i FILE.mp4 -r FRAMESPERSEC pic%05d.jpg
+# scale down movie with handbrake
+# store video file in its own folder
+# bash into this folder, then run to create frames:
+# ffmpeg -i FILE.mp4 -r FRAMESPERSEC pic%06d.jpg
 
 
 # Knives Out --------------------------------------------------------------
